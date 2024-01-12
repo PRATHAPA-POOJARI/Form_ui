@@ -9,6 +9,10 @@ import { Link } from 'react-router-dom';
 function App() {
   const [forms, setForms] = useState([]); // State to hold forms data
 
+  const addForm = (newForm) => {
+    setForms([...forms, newForm]);
+  };
+
   return (
     <div>
       <Router>
@@ -23,13 +27,21 @@ function App() {
             <Button color="inherit" component={Link} to="/form/create">
               Create Form
             </Button>
+
+            <Button color="inherit" component={Link} to="/forms">
+              View All Forms
+            </Button>
           </Toolbar>
         </AppBar>
 
         <Routes>
           <Route path="/" element={<Home forms={forms} />} />
-          <Route path="/form/create" element={<FormCreate />} />
-          <Route path="/form/:id" element={<FormView />} />
+          <Route
+            path="/form/create"
+            element={<FormCreate addForm={addForm} />} // Pass the addForm function to FormCreate
+          />
+          <Route path="/forms" element={<FormView forms={forms} />} />
+          <Route path="/form/:id" element={<FormView forms={forms} />} />
         </Routes>
       </Router>
     </div>
