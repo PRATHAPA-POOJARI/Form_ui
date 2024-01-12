@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Typography } from '@mui/material';
 
 const Home = ({ forms }) => (
   <div>
-    <h1>All Forms</h1>
+    <Typography>All Forms</Typography>
     <ul>
       {forms.map((form) => (
         <li key={form._id}>
