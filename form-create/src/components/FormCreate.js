@@ -1,8 +1,20 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button ,Box} from '@mui/material';
+import {
+  Typography,
+  Box,
+  Button,
+  Paper,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+} from '@mui/material';
 
 const FormCreate = ({ history }) => {
-  const [form, setForm] = useState({ title: '', inputs: [] });
+  const initialFormState = { title: '', inputs: [] };
+  const [form, setForm] = useState(initialFormState);
+  const [newInputType, setNewInputType] = useState('');
+  const [showSelectInputType, setShowSelectInputType] = useState(false);
 
   const handleInputChange = (index, property, value) => {
     const updatedInputs = [...form.inputs];
@@ -11,9 +23,31 @@ const FormCreate = ({ history }) => {
   };
 
   const addInput = () => {
-    if (form.inputs.length < 20) {
-      setForm({ ...form, inputs: [...form.inputs, { type: '', title: '', placeholder: '' }] });
+    if (!showSelectInputType && form.inputs.length < 20) {
+      setNewInputType(''); // Reset the input type
+      setForm({
+        ...form,
+        inputs: [
+          ...form.inputs,
+          { type: newInputType, title: '', placeholder: '' }, // Include title and placeholder
+        ],
+      });
     }
+    setShowSelectInputType(false); // Reset to false
+  };
+
+  const confirmInputType = () => {
+    if (newInputType && form.inputs.length < 20) {
+      setForm({
+        ...form,
+        inputs: [
+          ...form.inputs,
+          { type: newInputType, title: '', placeholder: '' },
+        ],
+      });
+      setNewInputType(''); // Reset the input type after adding
+    }
+    setShowSelectInputType(false); // Reset to false
   };
 
   const deleteInput = (index) => {
@@ -22,52 +56,130 @@ const FormCreate = ({ history }) => {
     setForm({ ...form, inputs: updatedInputs });
   };
 
-  const saveForm = () => {
-    // Implement save to the database logic here
-    // ...
-
-    // Redirect to the home page after saving
-    history.push('/');
+  const clearForm = () => {
+    setForm(initialFormState);
+    setShowSelectInputType(false);
   };
+
+  const saveForm = async () => {
+    try {
+      console.log('Form Data:', JSON.stringify(form));
+  
+      const response = await fetch('http://localhost:3001/api/forms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      });
+  
+      // ... rest of the code
+    } catch (error) {
+      console.error('Error saving form:', error);
+    }
+  };
+  
+  
 
   return (
     <div>
-
-<Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1>Create Form</h1>
-      <form>
-        <label>Title:</label>
-        <input
-          type="text"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-        />
-
-        <h2>Form Inputs</h2>
-        {form.inputs.map((input, index) => (
-          <div key={index}>
-            <label>Type:</label>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper elevation={1} sx={{ padding: 3, maxWidth: 400, margin: 'auto', marginTop: 10 }}>
+          <Typography variant="h5">Create Form</Typography>
+          <form>
+            <label>Title:</label>
             <input
               type="text"
-              value={input.type}
-              onChange={(e) => handleInputChange(index, 'type', e.target.value)}
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
-            {/* Add similar input fields for title and placeholder */}
 
-            <button type="button" onClick={() => deleteInput(index)}>
-              Delete Input
-            </button>
-          </div>
-        ))}
-
-        <button type="button" onClick={addInput}>
-          Add Input
-        </button>
-
-        <button type="button" onClick={saveForm}>
-          Save Form
-        </button>
-      </form>
+            <h2>Form Inputs</h2>
+            {form.inputs.map((input, index) => (
+              <div key={index}>
+                <label>Type:</label>
+                <input
+                  type="text"
+                  value={input.type}
+                  onChange={(e) => handleInputChange(index, 'type', e.target.value)}
+                />
+                <label>Title:</label>
+                <input
+                  type="text"
+                  value={input.title}
+                  onChange={(e) => handleInputChange(index, 'title', e.target.value)}
+                />
+                <label>Placeholder:</label>
+                <input
+                  type="text"
+                  value={input.placeholder}
+                  onChange={(e) => handleInputChange(index, 'placeholder', e.target.value)}
+                />
+                <button type="button" onClick={() => deleteInput(index)}>
+                  Delete Input
+                </button>
+              </div>
+            ))}
+            {showSelectInputType ? (
+              <>
+                <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
+                  Select Input Type:
+                </Typography>
+                <FormControl sx={{ marginTop: 1, minWidth: 120 }}>
+                  <InputLabel id="select-input-type-label">Select Input Type</InputLabel>
+                  <Select
+                    labelId="select-input-type-label"
+                    id="select-input-type"
+                    value={newInputType}
+                    label="Select Input Type"
+                    onChange={(e) => setNewInputType(e.target.value)}
+                  >
+                    <MenuItem value="text">Text</MenuItem>
+                    <MenuItem value="phone">Phone</MenuItem>
+                    <MenuItem value="email">Email</MenuItem>
+                    {/* Add other input types as needed */}
+                  </Select>
+                </FormControl>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
+                  onClick={confirmInputType}
+                >
+                  Confirm Input Type
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
+                  onClick={() => setShowSelectInputType(false)}
+                >
+                  Close Input
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
+                onClick={() => setShowSelectInputType(true)}
+              >
+                Add Input
+              </Button>
+            )}
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
+              onClick={clearForm}
+            >
+              Clear Form
+            </Button>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
+              onClick={saveForm}
+            >
+              Save Form
+            </Button>
+          </form>
+        </Paper>
       </Box>
     </div>
   );
