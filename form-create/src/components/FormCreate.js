@@ -15,6 +15,8 @@ const FormCreate = ({ history }) => {
   const [form, setForm] = useState(initialFormState);
   const [newInputType, setNewInputType] = useState('');
   const [showSelectInputType, setShowSelectInputType] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleInputChange = (index, property, value) => {
     const updatedInputs = [...form.inputs];
@@ -63,9 +65,12 @@ const FormCreate = ({ history }) => {
 
   const saveForm = async () => {
     try {
+      setLoading(true);
+      setError(null);
+  
       console.log('Form Data:', JSON.stringify(form));
   
-      const response = await fetch('http://localhost:3001/api/forms', {
+      const response = await fetch('http://localhost:3000/api/forms', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,14 +78,23 @@ const FormCreate = ({ history }) => {
         body: JSON.stringify(form),
       });
   
-      // ... rest of the code
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Form saved successfully:', data);
+  
+      // Optionally, you can redirect to another page or handle success in some way
+      // history.push('/success'); // Assuming you have a success route
     } catch (error) {
       console.error('Error saving form:', error);
+      setError('An error occurred while saving the form. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
   
-  
-
   return (
     <div>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
