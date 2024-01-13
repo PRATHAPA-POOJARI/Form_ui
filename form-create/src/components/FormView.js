@@ -1,33 +1,45 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-const FormView = ({ forms }) => {
-  const { id } = useParams(); // Get the form ID from the URL params
+
+const FormView = () => {
+  const { id } = useParams();
   const [form, setForm] = useState(null);
-  const [formData, setFormData] = useState({}); // Add this line to declare formData state
+  const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    // Find the form with the given ID
-    const selectedForm = forms.find((f) => f._id === id);
+    const fetchFormData = async () => {
+      try {
+        const response = await fetch(`http://localhost:3000/form/create`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-    if (selectedForm) {
-      setForm(selectedForm);
-    } else {
-      // Handle the case where the form is not found
-      console.error('Form not found');
-    }
-  }, [forms, id]);
+        const data = await response.json();
+        setForm(data);
+      } catch (error) {
+        console.error('Error fetching form data:', error);
+      }
+    };
+
+    fetchFormData();
+  }, [id]);
+
   const handleInputChange = (input, value) => {
-    // Implement input validation if needed
-    // You can update the form data in local state here
+    // Update the form data in local state
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [input.title]: value,
+    }));
   };
 
   const handleSubmit = async () => {
     // Implement form submission logic here
+    console.log('Form data submitted:', formData);
+    // You can use formData for further processing or send it to the server
   };
 
   if (!form) {
-    return <div>Loading...</div>; // or handle the case where form is not found
+    return <div>Loading...</div>;
   }
 
   return (
@@ -38,34 +50,13 @@ const FormView = ({ forms }) => {
         {form.inputs.map((input, index) => (
           <div key={index}>
             <label>{input.title}:</label>
-            {input.type === 'text' ? (
-              <input
-                type={input.type}
-                value={formData[input.title] || ''}
-                onChange={(e) => handleInputChange(input, e.target.value)}
-              />
-            ) : input.type === 'email' ? (
-              <input
-                type={input.type}
-                value={formData[input.title] || ''}
-                onChange={(e) => handleInputChange(input, e.target.value)}
-              />
-            ) : input.type === 'phone' ? (
-              <input
-                type={input.type}
-                value={formData[input.title] || ''}
-                onChange={(e) => handleInputChange(input, e.target.value)}
-              />
-            ) : (
-              <input
-                type="text"
-                value={formData[input.title] || ''}
-                onChange={(e) => handleInputChange(input, e.target.value)}
-              />
-            )}
+            <input
+              type={input.type}
+              value={formData[input.title] || ''}
+              onChange={(e) => handleInputChange(input, e.target.value)}
+            />
           </div>
         ))}
-               
         <button type="button" onClick={handleSubmit}>
           Submit Form
         </button>
