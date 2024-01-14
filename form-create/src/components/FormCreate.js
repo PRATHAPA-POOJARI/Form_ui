@@ -1,4 +1,11 @@
+// Import the necessary components and libraries
+
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import axios from 'axios';
+
 import {
   Typography,
   Box,
@@ -8,7 +15,10 @@ import {
   Select,
   FormControl,
   InputLabel,
+  TextField,
+  Alert,
 } from '@mui/material';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const FormCreate = ({ history }) => {
   const initialFormState = { title: '', inputs: [] };
@@ -26,16 +36,16 @@ const FormCreate = ({ history }) => {
 
   const addInput = () => {
     if (!showSelectInputType && form.inputs.length < 20) {
-      setNewInputType(''); // Reset the input type
+      setNewInputType('');
       setForm({
         ...form,
         inputs: [
           ...form.inputs,
-          { type: newInputType, title: '', placeholder: '' }, // Include title and placeholder
+          { type: newInputType, title: '', placeholder: '' },
         ],
       });
     }
-    setShowSelectInputType(false); // Reset to false
+    setShowSelectInputType(false);
   };
 
   const confirmInputType = () => {
@@ -47,9 +57,9 @@ const FormCreate = ({ history }) => {
           { type: newInputType, title: '', placeholder: '' },
         ],
       });
-      setNewInputType(''); // Reset the input type after adding
+      setNewInputType('');
     }
-    setShowSelectInputType(false); // Reset to false
+    setShowSelectInputType(false);
   };
 
   const deleteInput = (index) => {
@@ -70,23 +80,13 @@ const FormCreate = ({ history }) => {
   
       console.log('Form Data:', JSON.stringify(form));
   
-      const response = await fetch('http://localhost:3000/api/forms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(form),
-      });
+      const response = await axios.post('http://localhost:3000/form', form);
   
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+      // Axios automatically parses JSON responses, so no need to call response.json()
+      console.log('Form saved successfully:', response.data);
   
-      const data = await response.json();
-      console.log('Form saved successfully:', data);
-  
-      // Optionally, you can redirect to another page or handle success in some way
-      // history.push('/success'); // Assuming you have a success route
+      // Display success message using react-toastify
+      toast.success('Form saved successfully!');
     } catch (error) {
       console.error('Error saving form:', error);
       setError('An error occurred while saving the form. Please try again.');
@@ -97,48 +97,59 @@ const FormCreate = ({ history }) => {
   
   return (
     <div>
+      {/* Ensure ToastContainer is at the root level */}
+      <ToastContainer />
+
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Paper elevation={1} sx={{ padding: 3, maxWidth: 400, margin: 'auto', marginTop: 10 }}>
           <Typography variant="h5">Create Form</Typography>
           <form>
-            <label>Title:</label>
-            <input
-              type="text"
+            <TextField
+              id="standard-basic"
+              label="Please Enter Form Name"
+              variant="standard"
               value={form.title}
               onChange={(e) => setForm({ ...form, title: e.target.value })}
             />
 
             <h2>Form Inputs</h2>
             {form.inputs.map((input, index) => (
-              <div key={index}>
+              <Box sx={{ marginTop: 2 }} key={index}>
                 <label>Type:</label>
                 <input
                   type="text"
                   value={input.type}
                   onChange={(e) => handleInputChange(index, 'type', e.target.value)}
                 />
-                <label>Title:</label>
-                <input
-                  type="text"
+
+                <TextField
+                  id="outlined-basic"
+                  label="Title"
+                  variant="outlined"
+                  sx={{ marginTop: 2 }}
                   value={input.title}
                   onChange={(e) => handleInputChange(index, 'title', e.target.value)}
                 />
-                <label>Placeholder:</label>
-                <input
-                  type="text"
+                <TextField
+                  id="outlined-basic"
+                  label="Placeholder"
+                  variant="outlined"
+                  sx={{ marginTop: 2 }}
                   value={input.placeholder}
                   onChange={(e) => handleInputChange(index, 'placeholder', e.target.value)}
                 />
-                <button type="button" onClick={() => deleteInput(index)}>
-                  Delete Input
-                </button>
-              </div>
+
+                <DeleteForeverIcon
+                  sx={{ backgroundColor: 'white', color: 'green', marginLeft: 2 }}
+                  onClick={() => deleteInput(index)}
+                />
+              </Box>
             ))}
             {showSelectInputType ? (
               <>
                 <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
                   Select Input Type:
-                </Typography>
+                  </Typography>
                 <FormControl sx={{ marginTop: 1, minWidth: 120 }}>
                   <InputLabel id="select-input-type-label">Select Input Type</InputLabel>
                   <Select
@@ -151,7 +162,6 @@ const FormCreate = ({ history }) => {
                     <MenuItem value="text">Text</MenuItem>
                     <MenuItem value="phone">Phone</MenuItem>
                     <MenuItem value="email">Email</MenuItem>
-                    {/* Add other input types as needed */}
                   </Select>
                 </FormControl>
                 <Button
@@ -161,6 +171,7 @@ const FormCreate = ({ history }) => {
                 >
                   Confirm Input Type
                 </Button>
+
                 <Button
                   variant="contained"
                   sx={{ backgroundColor: 'red', color: 'white', marginLeft: 2, marginTop: 2 }}
