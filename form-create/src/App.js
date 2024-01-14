@@ -27,10 +27,10 @@ function App() {
             <Button color="inherit" component={Link} to="/form/create">
               Create Form
             </Button>
+            <Button color="inherit" component={Link} to="/forms/all">
+  View All Forms
+</Button>
 
-            <Button color="inherit" component={Link} to="/forms">
-              View All Forms
-            </Button>
           </Toolbar>
         </AppBar>
 
@@ -41,7 +41,12 @@ function App() {
             element={<FormCreate addForm={addForm} />} // Pass the addForm function to FormCreate
           />
           <Route path="/forms" element={<FormView forms={forms} />} />
-          <Route path="/form/:id" element={<FormView forms={forms} />} />
+          {/* <Route path="/form/:id" element={<FormView forms={forms} />} /> */}
+          {/* <Route path="/form/:id" component={FormView} /> */}
+          
+          {/* <Route path="/forms/:id" component={FormView} /> */}
+          <Route path="/forms/all" element={<FormView forms={forms} />} />
+
         </Routes>
       </Router>
     </div>
