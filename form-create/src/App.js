@@ -5,6 +5,8 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Home from './components/Home';
 import FormCreate from './components/FormCreate';
 import FormView from './components/FormView';
+import '../styles.css';
+
 import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 
 function App() {
@@ -20,7 +22,7 @@ function App() {
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Your App Name
+              Prathap Form Creation
             </Typography>
             <Button color="inherit" component={Link} to="/">
               Home

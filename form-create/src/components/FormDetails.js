@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Typography, TextField, Button } from '@mui/material';
+import './styles.css';
 
 const FormDetail = () => {
   const { formId } = useParams();
