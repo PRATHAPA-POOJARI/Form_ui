@@ -29,6 +29,18 @@ const FormView = () => {
 
     fetchData();
   }, []);
+  const handleDelete = async (formId) => {
+    try {
+      // Make an HTTP request to delete the form
+      await axios.delete(`http://localhost:3000/forms/${formId}`);
+
+      // Remove the deleted form from the state
+      setForms((prevForms) => prevForms.filter((form) => form._id !== formId));
+    } catch (error) {
+      console.error('Error deleting form:', error);
+    }
+  };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -48,14 +60,11 @@ const FormView = () => {
 
           {/* Display each input in the form */}
           <ul>
-            {form.inputs.map((input, index) => {
-              console.log('Input:', input);
-              return (
-                <li key={index}>
-                  Type: {input.type}, Title: {input.title}, Placeholder: {input.placeholder}
-                </li>
-              );
-            })}
+            {form.inputs.map((input, index) => (
+              <li key={index}>
+                Type: {input.type}, Title: {input.title}, Placeholder: {input.placeholder}
+              </li>
+            ))}
           </ul>
 
           {/* Use MUI Button for consistent styling */}
@@ -65,6 +74,11 @@ const FormView = () => {
 
           <Button component={Link} to={`/form/${form._id}/edit`} variant="outlined" color="secondary">
             Edit Form
+          </Button>
+
+          {/* Delete Button */}
+          <Button onClick={() => handleDelete(form._id)} variant="outlined" color="error">
+            Delete
           </Button>
         </div>
       ))}
