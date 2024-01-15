@@ -1,11 +1,5 @@
-// Import the necessary components and libraries
-
 import React, { useState } from 'react';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import axios from 'axios';
-
 import {
   Typography,
   Box,
@@ -27,6 +21,7 @@ const FormCreate = ({ history }) => {
   const [showSelectInputType, setShowSelectInputType] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const handleInputChange = (index, property, value) => {
     const updatedInputs = [...form.inputs];
@@ -77,16 +72,19 @@ const FormCreate = ({ history }) => {
     try {
       setLoading(true);
       setError(null);
-  
+
       console.log('Form Data:', JSON.stringify(form));
-  
-      const response = await axios.post('http://localhost:3000/form', form);
-  
+
+      const response = await axios.post('http://localhost:3000/forms', form);
+
       // Axios automatically parses JSON responses, so no need to call response.json()
       console.log('Form saved successfully:', response.data);
-  
-      // Display success message using react-toastify
-      toast.success('Form saved successfully!');
+
+      // Set success state to true
+      setSuccess(true);
+
+      // Clear success message after 3 seconds (adjust as needed)
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
       console.error('Error saving form:', error);
       setError('An error occurred while saving the form. Please try again.');
@@ -94,15 +92,17 @@ const FormCreate = ({ history }) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div>
-      {/* Ensure ToastContainer is at the root level */}
-      <ToastContainer />
-
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Paper elevation={1} sx={{ padding: 3, maxWidth: 400, margin: 'auto', marginTop: 10 }}>
           <Typography variant="h5">Create Form</Typography>
+          {success && (
+            <Alert severity="success" sx={{ marginBottom: 2 }}>
+              Form saved successfully!
+            </Alert>
+          )}
           <form>
             <TextField
               id="standard-basic"
@@ -149,7 +149,7 @@ const FormCreate = ({ history }) => {
               <>
                 <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
                   Select Input Type:
-                  </Typography>
+                </Typography>
                 <FormControl sx={{ marginTop: 1, minWidth: 120 }}>
                   <InputLabel id="select-input-type-label">Select Input Type</InputLabel>
                   <Select
@@ -162,6 +162,9 @@ const FormCreate = ({ history }) => {
                     <MenuItem value="text">Text</MenuItem>
                     <MenuItem value="phone">Phone</MenuItem>
                     <MenuItem value="email">Email</MenuItem>
+                    <MenuItem value="age">Age</MenuItem>
+                    <MenuItem value="address">Address</MenuItem>
+                    
                   </Select>
                 </FormControl>
                 <Button
