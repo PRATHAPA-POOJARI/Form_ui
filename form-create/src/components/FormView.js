@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Typography, Button, Paper } from '@mui/material';
-import './styles.css';
+import './Styles.css';
 
 
 const FormView = ({ forms: propForms }) => {
